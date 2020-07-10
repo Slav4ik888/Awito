@@ -21,69 +21,57 @@ const
 
   // Каталог 
   catalog = document.querySelector(`.catalog`),
-  // card = document.querySelector(`.card`),
   modalItem = document.querySelector(`.modal__item`);
 
 
-console.log('modalAdd: ', modalAdd);
+// Закрытие модальных окон
+const closeModal = function(event) {
+  const target = event.target;
+  // console.log(this);
+  if (target.closest(`.modal__close`) || target === this) {
+    this.classList.add(`hide`);
+  }
+};
+
+// Закрытие по нажатию Esc
+const closeModalEsc = event => {
+  if (event.code === 'Escape') {
+    modalItem.classList.add(`hide`);
+    modalAdd.classList.add(`hide`);
+    document.removeEventListener('keydown', closeModalEsc); 
+  };
+};
+
+
 
 // Открытие окна
 addAd.addEventListener(`click`, () => {
   modalAdd.classList.remove(`hide`);
   //блокируем кнопку отправить в модалке
   modalBtnSubmit.disabled = true;
+  // Очищаем форму
+  modalSubmit.reset();
+  document.addEventListener('keydown', closeModalEsc); 
 });
 
-// Закрытие окна
-modalAdd.addEventListener(`click`, event => {
-  const target = event.target;
 
-  if (target.closest(`.modal__close`) ||
-  // if (target.classList.contains(`modal__close`) ||
-    target === modalAdd) 
-  {
-    modalAdd.classList.add(`hide`);
-    // Очищаем форму
-    modalSubmit.reset();
-  }
-});
+
+// Закрытие окон
+modalAdd.addEventListener(`click`, closeModal);
+modalItem.addEventListener(`click`, closeModal);
+
+
 
 // Открываем карточку из каталога
 catalog.addEventListener(`click`, event => {
   const target = event.target;
+  // console.log(target.closest(`.card`));
 
-  if (target.classList.contains(`card__image`) ||
-      target.classList.contains(`card__description`) ||
-      target.classList.contains(`card__header`) ||
-      target.classList.contains(`card__price`) ) 
-    {
+  // Проверяет есть ли данный класс и если нет поднимается выше
+  if (target.closest(`.card`)) {
     modalItem.classList.remove(`hide`);
-
-    
-    // Закрытие по нажатию Esc
-    document.addEventListener('keypress', e => {
-      let keyCode = e.keyCode;
-      console.log('keyCode: ', keyCode);
-      if (keyCode === 32) {
-        modalItem.classList.add(`hide`);
-      };
-    }); 
-    
-    // Закрытие окна карточки
-    modalItem.addEventListener(`click`, event => {
-      const target = event.target;
-      console.log('target: ', target);
-
-      // if (target.closest(`.modal__close`) ||
-      if (target.classList.contains(`modal__close`) ||
-        target === modalItem) 
-      {
-        modalItem.classList.add(`hide`);
-      }
-    });
-
+    document.addEventListener('keydown', closeModalEsc); 
   }
-
 });
 
 
