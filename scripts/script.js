@@ -18,9 +18,15 @@ console.log(window.location);
 // --->>>>  START <<<< --- //
 
 // Здесь будем хранить все объявления
-const dataBase = JSON.parse(localStorage.getItem(`awito`)) || [];
+let dataBase = JSON.parse(localStorage.getItem(`awito`)) || [];
 const saveDB = () => localStorage.setItem(`awito`, JSON.stringify(dataBase));
 
+// dataBase.forEach(it => {
+//   it.id = new Date().getTime() + Math.random();
+// });
+
+// console.log('arr: ', dataBase);
+// saveDB();
 
 const
   // Модалка
@@ -32,8 +38,17 @@ const
 
   // Каталог 
   catalog = document.querySelector(`.catalog`),
-  modalItem = document.querySelector(`.modal__item`);
+  modalItem = document.querySelector(`.modal__item`),
 
+  // Модалка описания товара
+  modalImageItem = document.querySelector(`.modal__image-item`),
+  modalStatusItem = document.querySelector(`.modal__status-item`),
+  modalDescriptionItem = document.querySelector(`.modal__description-item`),
+  modalCostItem = document.querySelector(`.modal__cost-item`),
+  modalHeaderItem = document.querySelector(`.modal__header-item`),
+
+  // Поиск 
+  searchInput = document.querySelector(`.search__input`);
 
 // Для фото
 const infoPhoto = {};
@@ -73,6 +88,21 @@ modalFileInput.addEventListener(`change`, event => {
 });
 
 
+// ПОИСК
+searchInput.addEventListener(`input`, () => {
+  const valueSearch = searchInput.value.toLowerCase();
+
+  if (valueSearch.length > 2) {
+    const result = dataBase.filter(it => 
+      it.nameItem.toLowerCase().includes(valueSearch) ||
+      it.descriptionItem.toLowerCase().includes(valueSearch)
+    );
+    renderCard(result);
+  } else {
+    renderCard();
+  }
+
+});
 
 // Закрытие модальных окон
 const closeModal = function(event) {
@@ -101,7 +131,7 @@ modalItem.addEventListener(`click`, closeModal);
 
 
 
-// Открытие окна подачи объявления
+// ОТКРЫТИЕ ОКНА ПОДАЧИ ОБЪЯВЛЕНИЯ
 addAd.addEventListener(`click`, () => {
   modalAdd.classList.remove(`hide`);
   //блокируем кнопку отправить в модалке
@@ -130,6 +160,7 @@ const checkForm = () => {
 //  Слушатель на ввод данных в форму
 modalSubmit.addEventListener(`input`, checkForm);
 
+
 // НАЖАТИЕ НА ОТПРАВКУ ФОРМЫ
 modalSubmit.addEventListener(`submit`, event => {
   event.preventDefault();
@@ -139,6 +170,7 @@ modalSubmit.addEventListener(`submit`, event => {
     itemObj[elem.name] = elem.value;
   }
 
+  itemObj.id = new Date().getTime();
   itemObj.image64 = `data:image/jpeg;base64,${infoPhoto.base64}`;
   dataBase.push(itemObj); // добавляем в базу
   console.log('itemObject: ', itemObj);
@@ -149,12 +181,12 @@ modalSubmit.addEventListener(`submit`, event => {
 });
 
 
-const renderCard = () => {
+const renderCard = (DB = dataBase) => {
   catalog.textContent = '';
 
-  dataBase.forEach((it, i) => {
+  DB.forEach(it => {
     catalog.insertAdjacentHTML(`beforeend`, `
-      <li class="card" data-id="${i}">
+      <li class="card" data-id-item="${it.id}">
         <img class="card__image" src=${it.image64} alt="">
         <div class="card__description">
           <h3 class="card__header">${it.nameItem}</h3>
@@ -167,13 +199,29 @@ const renderCard = () => {
 };
 
 
-// Открываем карточку из каталога
+// ОТКРЫВАЕМ КАРТОЧКУ ИЗ КАТАЛОГА
 catalog.addEventListener(`click`, event => {
   const target = event.target;
   // console.log(target.closest(`.card`));
-
+  const card = target.closest(`.card`);
+  // console.dir(card);
   // Проверяет есть ли данный класс и если нет поднимается выше
-  if (target.closest(`.card`)) {
+  if (card) {
+    // Получаем ID
+    console.log(card.dataset.idItem);
+
+    // Получаем из нашей базы
+    // const item = dataBase[card.dataset.idItem];
+    // console.log('item: ', item);
+    const item = dataBase.find(it => it.id === +card.dataset.idItem);
+     
+
+
+    modalImageItem.src = item.image64;
+    modalStatusItem.textContent = item.status === 'new' ? `Новый` : `б/у`;
+    modalDescriptionItem.textContent = item.descriptionItem;
+    modalCostItem.textContent = item.costItem;
+    modalHeaderItem.textContent = item.nameItem;
     modalItem.classList.remove(`hide`);
     document.addEventListener('keydown', closeModal); 
   }
