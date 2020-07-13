@@ -26,6 +26,7 @@ const saveDB = () => localStorage.setItem(`awito`, JSON.stringify(dataBase));
 // });
 
 // console.log('arr: ', dataBase);
+
 // saveDB();
 
 const
